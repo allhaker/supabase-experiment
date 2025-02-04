@@ -66,6 +66,27 @@ export type Database = {
         };
         Relationships: [];
       };
+      goal_alignment: {
+        Row: {
+          company: Json;
+          created_at: string;
+          goal_alignment: Json;
+          id: number;
+        };
+        Insert: {
+          company: Json;
+          created_at?: string;
+          goal_alignment: Json;
+          id?: number;
+        };
+        Update: {
+          company?: Json;
+          created_at?: string;
+          goal_alignment?: Json;
+          id?: number;
+        };
+        Relationships: [];
+      };
       product: {
         Row: {
           created_at: string;

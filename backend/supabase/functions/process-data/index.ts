@@ -3,6 +3,7 @@ import { Database } from "./database.types.ts";
 import {
   Company,
   GoalAlignment,
+  GoalAlignmentByCompany,
   GoalCategoryData,
   GroupedByGoal,
   ProductWithRevenueShare,
@@ -89,7 +90,6 @@ const groupByGoalWithRevenueShare = (
 
 const calculateGoalAlignment = (
   groupedByGoal: GroupedByGoal,
-  company: Company,
 ) => {
   const goalAlignment: Record<number, GoalAlignment> = {};
 
@@ -103,7 +103,7 @@ const calculateGoalAlignment = (
       totalAlignment += alignment;
     });
 
-    goalAlignment[goalId] = { totalAlignment, goal: goalData, company };
+    goalAlignment[goalId] = { totalAlignment, goal: goalData };
   }
 
   return goalAlignment;
@@ -113,7 +113,7 @@ const getSdgAlignmentByCompany = async (
   supabase: SupabaseClientDb,
   companyIds: number[],
   companies: Company[],
-) => {
+): Promise<GoalAlignmentByCompany> => {
   const alignmentsByCompany = companyIds.map(async (id) => {
     const productsWithRevenueShare = await getProductsWithRevenueShare(
       supabase,
@@ -134,12 +134,36 @@ const getSdgAlignmentByCompany = async (
     );
 
     const company = companies.find((company) => company.id === id) as Company;
-    return calculateGoalAlignment(groupedByGoal, company);
+    const goalAlignment = calculateGoalAlignment(groupedByGoal);
+
+    return { goalAlignment, company };
   });
 
   const results = await Promise.all(alignmentsByCompany);
 
   return results;
+};
+
+const saveAlignment = async (
+  supabase: SupabaseClientDb,
+  sdgAlignmentByCompany: GoalAlignmentByCompany,
+) => {
+  const mappedAlignment = sdgAlignmentByCompany.map((
+    { goalAlignment: goal_alignment, company },
+  ) => ({
+    goal_alignment,
+    company,
+  }));
+
+  console.log("mappedAlignment", mappedAlignment);
+
+  const { error } = await supabase
+    .from("goal_alignment")
+    .upsert(mappedAlignment);
+
+  if (error) {
+    throw error;
+  }
 };
 
 Deno.serve(async (req) => {
@@ -161,7 +185,9 @@ Deno.serve(async (req) => {
       companies,
     );
 
-    return new Response(JSON.stringify(sdgAlignmentByCompany), {
+    saveAlignment(supabase, sdgAlignmentByCompany);
+
+    return new Response(JSON.stringify("Alignment is calculated and saved"), {
       headers: { "Content-Type": "application/json" },
       status: 200,
     });

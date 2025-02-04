@@ -40,5 +40,9 @@ export type GoalAlignment = {
       category: Category;
     }[];
   };
-  company: Company;
 };
+
+export type GoalAlignmentByCompany = {
+  goalAlignment: Record<number, GoalAlignment>;
+  company: Company;
+}[];
