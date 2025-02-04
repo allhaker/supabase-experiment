@@ -153,6 +153,7 @@ const saveAlignment = async (
   ) => ({
     goal_alignment,
     company,
+    company_id: company.id,
   }));
 
   console.log("mappedAlignment", mappedAlignment);

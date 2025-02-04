@@ -69,18 +69,21 @@ export type Database = {
       goal_alignment: {
         Row: {
           company: Json;
+          company_id: number;
           created_at: string;
           goal_alignment: Json;
           id: number;
         };
         Insert: {
           company: Json;
+          company_id: number;
           created_at?: string;
           goal_alignment: Json;
           id?: number;
         };
         Update: {
           company?: Json;
+          company_id?: number;
           created_at?: string;
           goal_alignment?: Json;
           id?: number;
