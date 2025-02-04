@@ -1,5 +1,146 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { Database } from "./database.types.ts";
+import {
+  Company,
+  GoalAlignment,
+  GoalCategoryData,
+  GroupedByGoal,
+  ProductWithRevenueShare,
+  SupabaseClientDb,
+} from "./types.ts";
+
+const getCompanies = async (supabase: SupabaseClientDb) => {
+  const { data, error } = await supabase
+    .from("company")
+    .select("*");
+
+  if (error) {
+    throw error;
+  }
+  if (data?.length === 0) throw new Error("No companies");
+
+  return data;
+};
+
+const getProductsWithRevenueShare = async (
+  supabase: SupabaseClientDb,
+  companyId: number,
+) => {
+  const { data, error } = await supabase
+    .from("revenue_share")
+    .select(`product_id, revenue_share`)
+    .eq("company_id", companyId);
+
+  if (error) {
+    throw error;
+  }
+  if (data?.length === 0) throw new Error("No target products");
+
+  return data;
+};
+
+const getGoalsByProduct = async (
+  supabase: SupabaseClientDb,
+  productIds: number[],
+) => {
+  const { data, error } = await supabase
+    .from("product_to_goal_and_category")
+    .select(`
+      product_id,
+      goal(id, name),
+      category(id, name, value)
+    `)
+    .in("product_id", productIds);
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+const groupByGoalWithRevenueShare = (
+  targetGoalsByProduct: GoalCategoryData[],
+  productsWithRevenueShare: ProductWithRevenueShare[],
+) => {
+  return targetGoalsByProduct.reduce((acc, item) => {
+    const { goal, product_id } = item;
+    const revenueShare = productsWithRevenueShare.find((product) =>
+      product.product_id === product_id
+    );
+    if (revenueShare === undefined) throw new Error("No revenue share");
+
+    if (!acc[goal.id]) {
+      acc[goal.id] = {
+        goal: goal.name,
+        products: [],
+      };
+    }
+
+    acc[goal.id].products.push({
+      product_id,
+      revenue_share: revenueShare.revenue_share,
+      category: item.category,
+    });
+
+    return acc;
+  }, {} as GroupedByGoal);
+};
+
+const calculateGoalAlignment = (
+  groupedByGoal: GroupedByGoal,
+  company: Company,
+) => {
+  const goalAlignment: Record<number, GoalAlignment> = {};
+
+  for (const goalId in groupedByGoal) {
+    const goalData = groupedByGoal[goalId];
+    let totalAlignment = 0;
+
+    goalData.products.forEach((product) => {
+      const { revenue_share, category } = product;
+      const alignment = (revenue_share * category.value) / 100;
+      totalAlignment += alignment;
+    });
+
+    goalAlignment[goalId] = { totalAlignment, goal: goalData, company };
+  }
+
+  return goalAlignment;
+};
+
+const getSdgAlignmentByCompany = async (
+  supabase: SupabaseClientDb,
+  companyIds: number[],
+  companies: Company[],
+) => {
+  const alignmentsByCompany = companyIds.map(async (id) => {
+    const productsWithRevenueShare = await getProductsWithRevenueShare(
+      supabase,
+      id,
+    );
+    const targetProductIds = productsWithRevenueShare.map(({ product_id }) =>
+      product_id
+    );
+
+    const targetGoalsByProduct = await getGoalsByProduct(
+      supabase,
+      targetProductIds,
+    );
+
+    const groupedByGoal = groupByGoalWithRevenueShare(
+      targetGoalsByProduct,
+      productsWithRevenueShare,
+    );
+
+    const company = companies.find((company) => company.id === id) as Company;
+    return calculateGoalAlignment(groupedByGoal, company);
+  });
+
+  const results = await Promise.all(alignmentsByCompany);
+
+  return results;
+};
 
 Deno.serve(async (req) => {
   try {
@@ -13,13 +154,14 @@ Deno.serve(async (req) => {
       },
     );
 
-    const { data, error } = await supabase.from("product").select("*");
+    const companies = await getCompanies(supabase);
+    const sdgAlignmentByCompany = await getSdgAlignmentByCompany(
+      supabase,
+      companies.map(({ id }) => id),
+      companies,
+    );
 
-    if (error) {
-      throw error;
-    }
-
-    return new Response(JSON.stringify({ data }), {
+    return new Response(JSON.stringify(sdgAlignmentByCompany), {
       headers: { "Content-Type": "application/json" },
       status: 200,
     });
