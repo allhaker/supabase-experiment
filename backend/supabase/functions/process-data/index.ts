@@ -168,6 +168,16 @@ const saveAlignment = async (
 };
 
 Deno.serve(async (req) => {
+  const headers = new Headers();
+  headers.set("Access-Control-Allow-Origin", "*");
+  headers.set("Content-Type", "application/json");
+  headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers });
+  }
+
   try {
     const supabase = createClient<Database>(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -189,7 +199,7 @@ Deno.serve(async (req) => {
     saveAlignment(supabase, sdgAlignmentByCompany);
 
     return new Response(JSON.stringify("Alignment is calculated and saved"), {
-      headers: { "Content-Type": "application/json" },
+      headers,
       status: 200,
     });
     // deno-lint-ignore no-explicit-any
