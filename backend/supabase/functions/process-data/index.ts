@@ -156,8 +156,6 @@ const saveAlignment = async (
     company_id: company.id,
   }));
 
-  console.log("mappedAlignment", mappedAlignment);
-
   const { error } = await supabase
     .from("goal_alignment")
     .upsert(mappedAlignment);
