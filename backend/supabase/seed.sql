@@ -54,18 +54,38 @@ VALUES
 -- Example: Consulting Service (ID 3) is strongly aligned with "Decent Work and Economic Growth"
 -- Drone (ID 12) is aligned with "Industry, Innovation, and Infrastructure"
 
+
 INSERT INTO product_to_goal_and_category (goal_id, created_at, product_id, category_id, id)
 VALUES
-  (8, NOW(), 3, 1, 1),  -- Consulting Service, Goal 8 (Decent Work and Economic Growth), Category "Strongly Aligned"
-  (9, NOW(), 4, 2, 2),  -- Laptop, Goal 9 (Industry, Innovation, and Infrastructure), Category "Aligned"
-  (7, NOW(), 5, 2, 3),  -- Smartphone, Goal 7 (Affordable and Clean Energy), Category "Aligned"
-  (12, NOW(), 6, 1, 4), -- Cloud Storage, Goal 12 (Responsible Consumption and Production), Category "Strongly Aligned"
-  (13, NOW(), 7, 3, 5),  -- Electric Car, Goal 13 (Climate Action), Category "Misaligned"
-  (3, NOW(), 8, 1, 6),   -- Soda, Goal 3 (Good Health and Well-Being), Category "Strongly Aligned"
-  (11, NOW(), 9, 2, 7),  -- Smartwatch, Goal 11 (Sustainable Cities and Communities), Category "Aligned"
-  (10, NOW(), 10, 1, 8), -- Web Development, Goal 10 (Reduced Inequality), Category "Strongly Aligned"
-  (13, NOW(), 11, 3, 9), -- Headphones, Goal 13 (Climate Action), Category "Misaligned"
-  (9, NOW(), 12, 2, 10);  -- Drone, Goal 9 (Industry, Innovation, and Infrastructure), Category "Aligned"
+  (8, NOW(), 1, 1, 1),  -- Apple, Goal 8 (Decent Work and Economic Growth), Category "Strongly Aligned"
+  (9, NOW(), 2, 2, 2),  -- Banana, Goal 9 (Industry, Innovation, and Infrastructure), Category "Aligned"
+  (7, NOW(), 3, 3, 3),  -- Consulting Service, Goal 7 (Affordable and Clean Energy), Category "Misaligned"
+  (12, NOW(), 4, 1, 4), -- Laptop, Goal 12 (Responsible Consumption and Production), Category "Strongly Aligned"
+  (13, NOW(), 5, 3, 5),  -- Smartphone, Goal 13 (Climate Action), Category "Misaligned"
+  (3, NOW(), 6, 2, 6),   -- Cloud Storage, Goal 3 (Good Health and Well-Being), Category "Aligned"
+  (11, NOW(), 7, 1, 7),  -- Electric Car, Goal 11 (Sustainable Cities and Communities), Category "Strongly Aligned"
+  (10, NOW(), 8, 2, 8), -- Soda, Goal 10 (Reduced Inequality), Category "Aligned"
+  (13, NOW(), 10, 3, 9), -- Web Development, Goal 13 (Climate Action), Category "Misaligned"
+  (9, NOW(), 11, 1, 10),  -- Headphones, Goal 9 (Industry, Innovation, and Infrastructure), Category "Strongly Aligned"
+  (8, NOW(), 12, 2, 11),   -- Drone, Goal 8 (Decent Work and Economic Growth), Category "Aligned"
+  (3, NOW(), 1, 3, 12),   -- Apple, Goal 3 (Good Health and Well-Being), Category "Misaligned"
+  (7, NOW(), 2, 1, 13),    -- Banana, Goal 7 (Affordable and Clean Energy), Category "Strongly Aligned"
+  (12, NOW(), 3, 2, 14),   -- Consulting Service, Goal 12 (Responsible Consumption and Production), Category "Aligned"
+  (13, NOW(), 4, 3, 15),   -- Laptop, Goal 13 (Climate Action), Category "Misaligned"
+  (8, NOW(), 5, 1, 16),    -- Smartphone, Goal 8 (Decent Work and Economic Growth), Category "Strongly Aligned"
+  (9, NOW(), 6, 4, 17),    -- Cloud Storage, Goal 9 (Industry, Innovation, and Infrastructure), Category "Strongly Misaligned"
+  (7, NOW(), 7, 2, 18),    -- Electric Car, Goal 7 (Affordable and Clean Energy), Category "Aligned"
+  (10, NOW(), 8, 1, 19),   -- Soda, Goal 10 (Reduced Inequality), Category "Strongly Aligned"
+  (12, NOW(), 9, 4, 20),   -- Smartwatch, Goal 12 (Responsible Consumption and Production), Category "Strongly Misaligned"
+  (13, NOW(), 10, 2, 21),   -- Web Development, Goal 13 (Climate Action), Category "Aligned"
+  (3, NOW(), 11, 1, 22),   -- Headphones, Goal 3 (Good Health and Well-Being), Category "Strongly Aligned"
+  (7, NOW(), 12, 2, 23),   -- Drone, Goal 7 (Affordable and Clean Energy), Category "Aligned"
+  (8, NOW(), 1, 3, 24),    -- Apple, Goal 8 (Decent Work and Economic Growth), Category "Misaligned"
+  (9, NOW(), 3, 2, 25),    -- Consulting Service, Goal 9 (Industry, Innovation, and Infrastructure), Category "Aligned"
+  (7, NOW(), 4, 2, 26),    -- Laptop, Goal 7 (Affordable and Clean Energy), Category "Aligned"
+  (12, NOW(), 5, 1, 27),  -- Smartphone, Goal 12 (Responsible Consumption and Production), Category "Strongly Aligned"
+  (3, NOW(), 6, 3, 28);   -- Cloud Storage, Goal 3 (Good Health and Well-Being), Category "Misaligned"
+
   -- Add more product-to-goal and category mappings as necessary
 
 -- Insert Revenue Shares (Randomized, but one company gets 100% combined share for all products)
