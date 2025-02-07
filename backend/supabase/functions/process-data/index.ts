@@ -114,7 +114,9 @@ const getSdgAlignmentByCompany = async (
   companyIds: number[],
   companies: Company[],
 ): Promise<GoalAlignmentByCompany> => {
+  // looping through each company to calculate the alignment
   const alignmentsByCompany = companyIds.map(async (id) => {
+    // get all products with revenue share for the company
     const productsWithRevenueShare = await getProductsWithRevenueShare(
       supabase,
       id,
@@ -123,18 +125,23 @@ const getSdgAlignmentByCompany = async (
       product_id
     );
 
+    // get all goals and categories for the products
     const targetGoalsByProduct = await getGoalsByProduct(
       supabase,
       targetProductIds,
     );
 
+    // group company products by goal id and product with revenue share and category
     const groupedByGoal = groupByGoalWithRevenueShare(
       targetGoalsByProduct,
       productsWithRevenueShare,
     );
 
-    const company = companies.find((company) => company.id === id) as Company;
+    // calculate the alignment on this formula:
+    // const alignment = (revenue_share * category.value) / 100;
+    // totalAlignment += alignment;
     const goalAlignment = calculateGoalAlignment(groupedByGoal);
+    const company = companies.find((company) => company.id === id) as Company;
 
     return { goalAlignment, company };
   });
@@ -187,13 +194,18 @@ Deno.serve(async (req) => {
       },
     );
 
-    const companies = await getCompanies(supabase);
+    const companies = await getCompanies(supabase); // first get all companies
+
+    // then calculate the alignment for each company
+    // in a production environment, this could be done in a queue
     const sdgAlignmentByCompany = await getSdgAlignmentByCompany(
       supabase,
       companies.map(({ id }) => id),
       companies,
     );
 
+    // save the alignment to the database in a denormalized state to enable
+    // easy rendering and fetching
     saveAlignment(supabase, sdgAlignmentByCompany);
 
     return new Response(JSON.stringify("Alignment is calculated and saved"), {
